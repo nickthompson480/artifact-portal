@@ -212,6 +212,28 @@ artifact-portal/
         └── components/     # Shell, Sidebar, cards, badges, ...
 ```
 
+## Example artifacts
+
+`examples/` contains two polished demo artifacts you can publish to a fresh portal to see what it looks like with real content:
+
+```bash
+# Publish both — assumes ARTIFACT_PORTAL_KEY and ARTIFACT_PORTAL_URL are set
+for f in examples/*.html; do
+  title=$(grep -o '<title>[^<]*</title>' "$f" | sed 's/<[^>]*>//g')
+  printf '%s' "$(cat "$f")" | curl -s -X POST "$ARTIFACT_PORTAL_URL/api/artifacts" \
+    -H "X-API-Key: $ARTIFACT_PORTAL_KEY" \
+    -F "title=$title" \
+    -F "category=spec" \
+    -F "visibility=public" \
+    -F "file=@-;filename=artifact.html" | python3 -c "import json,sys; a=json.load(sys.stdin); print('published:', a['slug'])"
+done
+```
+
+| File | What it is |
+|---|---|
+| `about-the-artifact-portal.html` | Literary essay explaining what the portal is, why HTML, and how it works. The portal's first artifact. |
+| `anatomy-of-a-good-artifact.html` | Operational reference with interactive anatomy diagram, toggleable Design Contract checklist, and sandbox behavior matrix. |
+
 ## License
 
 MIT

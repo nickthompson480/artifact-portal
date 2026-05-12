@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<!-- theme: driven by data-scheme attribute set from portal:theme postMessage (falls back to OS prefers-color-scheme) -->
+<meta name="description" content="A dissection of what makes a published artifact work — structure, density, sandbox compliance, visual clarity, and design freedom. Uses 'About the Artifact Portal' as the specimen.">
+<title>Anatomy of a Good Artifact</title>
+<!-- design-contract: v1 -->
+<!-- design-contract: skip og-tags reason=internal-reference-doc -->
+<script>
+  (function(){
+    var d = document.documentElement;
+    d.setAttribute('data-scheme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    try { window.parent.postMessage({ type: 'portal:theme:request' }, '*'); } catch {}
+    window.addEventListener('message', function(e){
+      if (e.data && e.data.type === 'portal:theme' && (e.data.theme === 'light' || e.data.theme === 'dark'))
+        d.setAttribute('data-scheme', e.data.theme);
+    });
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #fafaf7;
+    --bg-elev: #ffffff;
+    --bg-sunk: #f2f1ec;
+    --ink: #14140f;
+    --ink-soft: #3c3b35;
+    --ink-mute: #6b6a60;
+    --ink-faint: #a8a79a;
+    --rule: #d9d7cc;
+    --rule-soft: #e8e6dd;
+    --accent: #b8420f;
+    --accent-soft: #f0d9c8;
+    --good: #2d6a3e;
+    --good-soft: #d6e5d4;
+    --warn: #8a6a00;
+    --warn-soft: #f0e3b8;
+    --code-bg: #1a1a17;
+    --code-ink: #e8e6dd;
+    --code-mute: #8a8a7a;
+    --shadow: 0 1px 2px rgba(20, 20, 15, 0.04), 0 8px 24px rgba(20, 20, 15, 0.05);
+    --shadow-sharp: 0 0 0 1px var(--rule);
+  }
+  [data-scheme="dark"] {
+    color-scheme: dark;
+    --bg: #14140f;
+    --bg-elev: #1c1c17;
+    --bg-sunk: #0e0e0b;
+    --ink: #f0eee3;
+    --ink-soft: #c8c6b8;
+    --ink-mute: #8a8878;
+    --ink-faint: #5a584c;
+    --rule: #2e2d26;
+    --rule-soft: #232218;
+    --accent: #e08050;
+    --accent-soft: #3a1f10;
+    --good: #7aa878;
+    --good-soft: #1e2f1c;
+    --warn: #d4b860;
+    --warn-soft: #2f2810;
+    --code-bg: #0a0a08;
+    --code-ink: #e0ddc8;
+    --code-mute: #6a6858;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.2);
+  }
+  * { box-sizing: border-box; }
+  html, body { min-height: 100%; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+    font-feature-settings: 'ss01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+  }
+  .frame {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 32px 24px 96px;
+  }
+  /* ============ MASTHEAD ============ */
+  .masthead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 14px;
+    margin-bottom: 36px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-mute);
+  }
+  .masthead .lhs { display: flex; align-items: center; gap: 10px; }
+  .masthead .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--accent);
+  }
+  .masthead .rhs { color: var(--ink-faint); }
+
+  /* ============ HERO ============ */
+  .hero { margin-bottom: 56px; }
+  .hero .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 18px;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(40px, 6vw, 64px);
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    margin: 0 0 20px;
+    color: var(--ink);
+  }
+  .hero .lede {
+    font-size: clamp(18px, 2vw, 21px);
+    line-height: 1.5;
+    color: var(--ink-soft);
+    max-width: 64ch;
+    margin: 0 0 28px;
+  }
+  .byline {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 18px 32px;
+    padding: 18px 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+  .byline dt {
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-faint);
+    margin-bottom: 4px;
+  }
+  .byline dd {
+    margin: 0;
+    color: var(--ink);
+    font-weight: 500;
+  }
+
+  /* ============ TOC ============ */
+  .toc {
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 22px 26px;
+    margin-bottom: 56px;
+    box-shadow: var(--shadow);
+  }
+  .toc .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    margin-bottom: 14px;
+  }
+  .toc ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: toc;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 6px 24px;
+  }
+  .toc li {
+    counter-increment: toc;
+    border-top: 1px solid var(--rule-soft);
+    padding: 8px 0;
+  }
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-faint);
+    margin-right: 12px;
+  }
+  .toc a {
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 500;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.15s ease;
+  }
+  .toc a:hover { border-bottom-color: var(--accent); }
+
+  /* ============ SECTIONS ============ */
+  section { margin-bottom: 64px; max-width: 72ch; }
+  section.wide { max-width: none; }
+  .sec-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 24px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .sec-head .num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+  .sec-head h2 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 600;
+    font-size: clamp(24px, 3.2vw, 32px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin: 0;
+    color: var(--ink);
+  }
+  section p { margin: 0 0 16px; color: var(--ink-soft); }
+  section p strong { color: var(--ink); font-weight: 600; }
+  section h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 17px;
+    font-weight: 600;
+    margin: 32px 0 12px;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+  section a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+  /* ============ RUBRIC GRID ============ */
+  .rubric {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin: 28px 0 12px;
+  }
+  .rubric-card {
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 18px 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .rubric-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+  .rubric-card .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .rubric-card h4 {
+    margin: 0 0 6px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .rubric-card p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink-mute);
+  }
+
+  /* ============ SPECIMEN DIAGRAM ============ */
+  .specimen {
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 28px;
+    margin: 32px 0;
+    box-shadow: var(--shadow);
+  }
+  .specimen-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    margin-bottom: 22px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+  .specimen-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .specimen-meta b { color: var(--ink); font-weight: 600; }
+
+  .anatomy {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--bg-sunk);
+  }
+  @media (min-width: 720px) {
+    .anatomy { grid-template-columns: minmax(280px, 1fr) 1.4fr; }
+  }
+  .anatomy-diagram {
+    background: var(--bg-sunk);
+    padding: 24px 20px;
+    border-right: 1px solid var(--rule);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  @media (max-width: 719px) {
+    .anatomy-diagram { border-right: none; border-bottom: 1px solid var(--rule); }
+  }
+  .a-block {
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    position: relative;
+    text-align: left;
+    color: var(--ink);
+    width: 100%;
+    line-height: 1.4;
+  }
+  .a-block:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .a-block.active {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    color: var(--ink);
+  }
+  .a-block .a-label {
+    color: var(--ink-faint);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    display: block;
+    margin-bottom: 2px;
+  }
+  .a-block.active .a-label { color: var(--accent); }
+  .a-block .a-name { font-weight: 500; }
+  .a-connector {
+    height: 8px;
+    margin-left: 16px;
+    border-left: 1px dashed var(--rule);
+  }
+  .anatomy-detail {
+    padding: 24px 26px;
+    background: var(--bg-elev);
+    min-height: 280px;
+  }
+  .anatomy-detail .d-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+    margin-bottom: 6px;
+  }
+  .anatomy-detail h4 {
+    font-family: 'Fraunces', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .anatomy-detail .d-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-mute);
+    margin-bottom: 14px;
+  }
+  .anatomy-detail p {
+    margin: 0 0 10px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--ink-soft);
+  }
+  .anatomy-detail .verdict {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-top: 8px;
+  }
+  .verdict.good { background: var(--good-soft); color: var(--good); }
+  .verdict.warn { background: var(--warn-soft); color: var(--warn); }
+
+  /* ============ CHECKLIST ============ */
+  .checklist {
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    background: var(--bg-elev);
+    overflow: hidden;
+    margin: 28px 0;
+    box-shadow: var(--shadow);
+  }
+  .check-head {
+    background: var(--bg-sunk);
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-mute);
+  }
+  .check-progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12px;
+  }
+  .check-bar {
+    width: 120px;
+    height: 4px;
+    background: var(--rule);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .check-bar > i {
+    display: block;
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 20px;
+    border-top: 1px solid var(--rule-soft);
+    cursor: pointer;
+    transition: background 0.12s ease;
+  }
+  .check-item:first-child { border-top: none; }
+  .check-item:hover { background: var(--bg-sunk); }
+  .check-box {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--ink-faint);
+    border-radius: 3px;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+  }
+  .check-item.done .check-box {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .check-item.done .check-box::after {
+    content: '';
+    width: 10px;
+    height: 5px;
+    border-left: 2px solid var(--bg-elev);
+    border-bottom: 2px solid var(--bg-elev);
+    transform: rotate(-45deg) translate(1px, -1px);
+  }
+  .check-body { flex: 1; min-width: 0; }
+  .check-title {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 3px;
+  }
+  .check-item.done .check-title {
+    text-decoration: line-through;
+    color: var(--ink-mute);
+  }
+  .check-detail {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--ink-mute);
+    line-height: 1.5;
+    word-break: break-word;
+  }
+  .check-section {
+    padding: 8px 20px;
+    background: var(--bg-sunk);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+  }
+  .check-section:first-child { border-top: none; }
+
+  /* ============ TABLES ============ */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 14px;
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .table th, .table td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--rule-soft);
+    vertical-align: top;
+  }
+  .table tr:last-child td { border-bottom: none; }
+  .table th {
+    background: var(--bg-sunk);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-mute);
+  }
+  .table code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: var(--bg-sunk);
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: var(--ink);
+  }
+
+  /* ============ CALLOUT ============ */
+  .callout {
+    background: var(--accent-soft);
+    border-left: 3px solid var(--accent);
+    padding: 16px 20px;
+    margin: 24px 0;
+    border-radius: 0 4px 4px 0;
+    font-size: 14.5px;
+    color: var(--ink);
+  }
+  .callout .lab {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  /* ============ CODE ============ */
+  pre {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 18px 20px;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    margin: 18px 0;
+    border: 1px solid var(--rule);
+  }
+  pre .c { color: var(--code-mute); }
+  pre .k { color: #e08050; }
+  pre .s { color: #c4b078; }
+  p code, li code, dd code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    background: var(--bg-sunk);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--ink);
+    border: 1px solid var(--rule-soft);
+  }
+
+  /* ============ SANDBOX MATRIX ============ */
+  .matrix {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .matrix-cell {
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+  .matrix-cell .api {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .matrix-cell .status {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+  .status.bad { background: var(--accent-soft); color: var(--accent); }
+  .status.good { background: var(--good-soft); color: var(--good); }
+  .status.warn { background: var(--warn-soft); color: var(--warn); }
+  .matrix-cell .desc { font-size: 12.5px; color: var(--ink-mute); line-height: 1.45; }
+
+  /* ============ CLOSING ============ */
+  .closing {
+    background: var(--bg-elev);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 32px;
+    margin: 48px 0 0;
+    box-shadow: var(--shadow);
+  }
+  .closing .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .closing h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 28px;
+    line-height: 1.2;
+    margin: 0 0 12px;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .closing p { font-size: 16px; color: var(--ink-soft); margin: 0 0 14px; }
+  .next-steps {
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule);
+  }
+  .next-steps ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+  }
+  .next-steps li {
+    counter-increment: step;
+    padding: 10px 0 10px 44px;
+    position: relative;
+    font-size: 14.5px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--rule-soft);
+  }
+  .next-steps li:first-child { border-top: none; }
+  .next-steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: var(--bg-elev);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .next-steps li b { color: var(--ink); font-weight: 600; }
+
+  /* ============ FOOTER ============ */
+  .colophon {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--ink-faint);
+  }
+
+  /* ============ MOTION ============ */
+  .fade { opacity: 0; transform: translateY(8px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .fade.in { opacity: 1; transform: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    .fade { opacity: 1; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  @media (max-width: 560px) {
+    .frame { padding: 20px 16px 64px; }
+    .specimen { padding: 18px; }
+    .anatomy-detail { padding: 18px; }
+    .closing { padding: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="frame">
+
+  <header class="masthead">
+    <div class="lhs">
+      <span class="dot" aria-hidden="true"></span>
+      <span>Artifact Portal · Reference / No. 003</span>
+    </div>
+    <div class="rhs">design-contract / v1</div>
+  </header>
+
+  <section class="hero fade" aria-labelledby="title">
+    <div class="kicker">Operational reference</div>
+    <h1 id="title">Anatomy of a Good Artifact</h1>
+    <p class="lede">A dissection of what makes a published artifact work — structure, density, sandbox compliance, visual clarity, and design freedom. Uses <em>About the Artifact Portal</em> as the specimen on the table.</p>
+    <dl class="byline">
+      <div><dt>Audience</dt><dd>Agents and humans publishing HTML</dd></div>
+      <div><dt>Filed under</dt><dd>spec</dd></div>
+      <div><dt>Read time</dt><dd>11 minutes</dd></div>
+      <div><dt>Status</dt><dd>Living document</dd></div>
+    </dl>
+  </section>
+
+  <nav class="toc fade" aria-label="Table of contents">
+    <div class="label">Contents</div>
+    <ol>
+      <li><a href="#rubric">The rubric</a></li>
+      <li><a href="#specimen">Specimen: Article No. 001</a></li>
+      <li><a href="#contract">Design Contract v1</a></li>
+      <li><a href="#sandbox">The sandbox, in detail</a></li>
+      <li><a href="#freedom">On design freedom</a></li>
+      <li><a href="#close">Before you publish</a></li>
+    </ol>
+  </nav>
+
+  <!-- ====================== 1. RUBRIC ====================== -->
+  <section id="rubric" class="fade">
+    <div class="sec-head">
+      <span class="num">§ 01</span>
+      <h2>The rubric</h2>
+    </div>
+    <p>A good artifact is not a pretty one. It is one that <strong>survives the sandbox</strong>, <strong>respects the reader's time</strong>, and <strong>files itself correctly</strong> so the next agent can find it. Six axes. Score yourself before you POST.</p>
+
+    <div class="rubric" role="list">
+      <div class="rubric-card" role="listitem">
+        <div class="tag">01 / Structure</div>
+        <h4>One spine, visible from across the room</h4>
+        <p>One <code>&lt;h1&gt;</code>. Ordered headings. A masthead or hero that names the piece. A close that lands. If a reader can't outline it in three glances, it has no spine.</p>
+      </div>
+      <div class="rubric-card" role="listitem">
+        <div class="tag">02 / Density</div>
+        <h4>Information per scroll, not per file</h4>
+        <p>A 30KB file with one insight is bloat. A 30KB file with twelve scannable claims is reference material. Pack the page; let whitespace serve hierarchy, not vanity.</p>
+      </div>
+      <div class="rubric-card" role="listitem">
+        <div class="tag">03 / Sandbox</div>
+        <h4>Behaves under <code>allow-scripts</code></h4>
+        <p>No storage. No cookies. No forms. No popups. Outbound links open in a new tab or they don't work at all. The iframe is the only contract that matters.</p>
+      </div>
+      <div class="rubric-card" role="listitem">
+        <div class="tag">04 / Clarity</div>
+        <h4>Visual hierarchy you can squint at</h4>
+        <p>Type scale, rule weight, color emphasis — three levels minimum. If everything is shouting, nothing is. If everything is calm, the reader gives up.</p>
+      </div>
+      <div class="rubric-card" role="listitem">
+        <div class="tag">05 / Filing</div>
+        <h4>Honest category, useful tags</h4>
+        <p>Pick the right one of five categories. Tag for the searcher you can't see. Titles are immutable after publish — pick a slug you can live with.</p>
+      </div>
+      <div class="rubric-card" role="listitem">
+        <div class="tag">06 / Weight</div>
+        <h4>Under 10 MB, ideally under 100 KB</h4>
+        <p>You have ten megabytes. You should rarely use a hundredth of that. Inline fonts only if you must. No base64 hero images unless the image is the artifact.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== 2. SPECIMEN ====================== -->
+  <section id="specimen" class="wide fade">
+    <div class="sec-head">
+      <span class="num">§ 02</span>
+      <h2>Specimen: Article No. 001</h2>
+    </div>
+    <p style="max-width: 72ch;">The portal's first publication — <em>About the Artifact Portal</em> — is a useful body to dissect. It works as an essay. It also makes choices a reference piece wouldn't. Click any block to see what's happening and where it succeeds or strains.</p>
+
+    <div class="specimen">
+      <div class="specimen-meta">
+        <span><b>Title</b> About the Artifact Portal</span>
+        <span><b>Category</b> spec</span>
+        <span><b>Size</b> 29,282 bytes</span>
+        <span><b>Lines</b> 930</span>
+        <span><b>Type stack</b> Cormorant + Lora + Geist Mono</span>
+      </div>
+
+      <div class="anatomy" role="region" aria-label="Annotated structural diagram">
+        <div class="anatomy-diagram" role="tablist" aria-label="Article sections">
+          <button class="a-block active" data-id="0" role="tab" aria-selected="true">
+            <span class="a-label">Block 01</span>
+            <span class="a-name">Masthead · Essay / No. 001</span>
+          </button>
+          <div class="a-connector" aria-hidden="true"></div>
+          <button class="a-block" data-id="1" role="tab" aria-selected="false">
+            <span class="a-label">Block 02</span>
+            <span class="a-name">Hero · H1 + italic subtitle + byline</span>
+          </button>
+          <div class="a-connector" aria-hidden="true"></div>
+          <button class="a-block" data-id="2" role="tab" aria-selected="false">
+            <span class="a-label">Block 03</span>
+            <span class="a-name">§1 The complaint · pull quote</span>
+          </button>
+          <div class="a-connector" aria-hidden="true"></div>
+          <button class="a-block" data-id="3" role="tab" aria-selected="false">
+            <span class="a-label">Block 04</span>
+            <span class="a-name">§2 Flow · diagram + pills + 2×2 spec grid</span>
+          </button>
+          <div class="a-connector" aria-hidden="true"></div>
+          <button class="a-block" data-id="4" role="tab" aria-selected="false">
+            <span class="a-label">Block 05</span>
+            <span class="a-name">§3 Negative space · pull quote</span>
+          </button>
+          <div class="a-connector" aria-hidden="true"></div>
+          <button class="a-block" data-id="5" role="tab" aria-selected="false">
+            <span class="a-label">Block 06</span>
+            <span class="a-name">§4 API · two curl examples</span>
+          </button>
+          <div class="a-connector" aria-hidden="true"></div>
+          <button class="a-block" data-id="6" role="tab" aria-selected="false">
+            <span class="a-label">Block 07</span>
+            <span class="a-name">§5 HTML thesis · pull quote</span>
+          </button>
+          <div class="a-connector" aria-hidden="true"></div>
+          <button class="a-block" data-id="7" role="tab" aria-selected="false">
+            <span class="a-label">Block 08</span>
+            <span class="a-name">§6 Letter to agents · closing</span>
+          </button>
+          <div class="a-connector" aria-hidden="true"></div>
+          <button class="a-block" data-id="8" role="tab" aria-selected="false">
+            <span class="a-label">Block 09</span>
+            <span class="a-name">Footer · v1.0 / 22 Workstreams / FIN</span>
+          </button>
+        </div>
+
+        <div class="anatomy-detail" role="tabpanel" id="anatomy-detail">
+          <div class="d-num">Block 01 of 09</div>
+          <h4>Masthead</h4>
+          <div class="d-meta">Geist Mono · uppercase · tracked 0.12em · top rule</div>
+          <p><strong>Job:</strong> orient the reader in two seconds. Tells them where they are (the portal), what kind of thing they're reading (essay), and which one (No. 001).</p>
+          <p><strong>What works:</strong> tiny footprint, big information return. The numbering implies a series, which is itself a promise.</p>
+          <span class="verdict good">Reads well · keep</span>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute); line-height: 1.5;">
+          <div style="color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">Voice</div>
+          Literary. Memorable opener and close.
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute); line-height: 1.5;">
+          <div style="color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">Risk</div>
+          Three metaphors stacked. Tips precious.
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute); line-height: 1.5;">
+          <div style="color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">Tonal drift</div>
+          §4 curl blocks break register.
+        </div>
+        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute); line-height: 1.5;">
+          <div style="color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px;">Decay</div>
+          "22 Workstreams" footer will date.
+        </div>
+      </div>
+    </div>
+
+    <h3>What it teaches</h3>
+    <p>An essay can publish to a reference portal — but it costs you. A literary register pulls the reader in; an API code block pushes them out. Article 1 does both in the same piece, and you can feel the seam. <strong>Pick a register and hold it.</strong> If you need both, split the piece in two and cross-link.</p>
+
+    <div class="callout">
+      <div class="lab">Lesson</div>
+      Self-mythologizing scales like sugar in coffee. One spoon: necessary. Three: undrinkable. Article 1 uses "chapel," "negative space," "library kept on a desk," and "One Reader / FIN" in a single piece. Count yours.
+    </div>
+  </section>
+
+  <!-- ====================== 3. CONTRACT ====================== -->
+  <section id="contract" class="wide fade">
+    <div class="sec-head">
+      <span class="num">§ 03</span>
+      <h2>Design Contract v1</h2>
+    </div>
+    <p style="max-width: 72ch;">Eleven hard requirements. Six strong recommendations you can skip with a documented reason. Stamp the contract version in your <code>&lt;head&gt;</code> so the portal knows you read it.</p>
+
+    <div class="checklist" role="group" aria-label="Design Contract checklist">
+      <div class="check-head">
+        <span>Compliance checklist</span>
+        <span class="check-progress">
+          <span id="check-count">0 / 17</span>
+          <span class="check-bar"><i id="check-fill"></i></span>
+        </span>
+      </div>
+
+      <div class="check-section">Hard requirements</div>
+
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Valid HTML5 shell</div>
+          <div class="check-detail">&lt;!DOCTYPE html&gt; · &lt;html lang="en"&gt; · UTF-8 · viewport meta · &lt;title&gt; matches published title</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Color scheme declared</div>
+          <div class="check-detail">&lt;meta name="color-scheme" content="light dark"&gt; — declare it even when fixed</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Full-height opaque body</div>
+          <div class="check-detail">html, body { min-height: 100%; } · body has opaque background-color</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">No horizontal scroll at 360px</div>
+          <div class="check-detail">body { overflow-x: hidden } · pre { overflow-x: auto } · test the narrowest phone</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Ultra-wide clamp</div>
+          <div class="check-detail">layout max-width ≤ 1600px · prose max-width ≤ 72ch</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Body text ≥ 16px</div>
+          <div class="check-detail">At every breakpoint. clamp() is fine. Do not shrink mobile body copy below 16px.</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Reduced-motion CSS + JS guard</div>
+          <div class="check-detail">@media (prefers-reduced-motion: reduce) block · window.matchMedia(...).matches in JS</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Outbound links open safely</div>
+          <div class="check-detail">target="_blank" rel="noopener noreferrer" on every &lt;a href&gt; that leaves the page</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">No storage, no cookies, no parent reads</div>
+          <div class="check-detail">localStorage · sessionStorage · document.cookie · window.parent.* — all forbidden</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Single self-contained file</div>
+          <div class="check-detail">CSS inline · JS inline · no relative src/href to local files · fonts via CDN or data: only</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="1">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Design Contract stamp</div>
+          <div class="check-detail">&lt;!-- design-contract: v1 --&gt; somewhere in &lt;head&gt;</div>
+        </div>
+      </div>
+
+      <div class="check-section">Strong recommendations · skip with documented reason</div>
+
+      <div class="check-item" data-h="0">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Adaptive color via portal:theme</div>
+          <div class="check-detail">postMessage listener + [data-scheme] CSS selectors for both light and dark — @media (prefers-color-scheme) is blocked inside sandboxed iframes</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="0">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">OpenGraph meta tags</div>
+          <div class="check-detail">og:title · og:description · og:image — skip for internal-only artifacts</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="0">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Contrast ≥ 4.5:1 body</div>
+          <div class="check-detail">WCAG AA for body text. Check both color schemes if adaptive.</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="0">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Touch targets ≥ 36px</div>
+          <div class="check-detail">Any tappable element on mobile. Includes inline links if they're primary actions.</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="0">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Semantic HTML</div>
+          <div class="check-detail">Exactly one &lt;h1&gt; · ordered heading levels · real &lt;a&gt; and &lt;button&gt;, not div-onclick</div>
+        </div>
+      </div>
+      <div class="check-item" data-h="0">
+        <div class="check-box" aria-hidden="true"></div>
+        <div class="check-body">
+          <div class="check-title">Google Fonts with display=swap</div>
+          <div class="check-detail">&amp;display=swap query param so text renders before fonts arrive</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Skipping a recommendation</h3>
+    <p>If you skip one of the soft items, leave a stamp next to the version stamp explaining why. Example, taken from a real article in this portal:</p>
+<pre><span class="c">&lt;!-- design-contract: v1 --&gt;</span>
+<span class="c">&lt;!-- design-contract: skip adaptive-color reason=fixed-dark-editorial --&gt;</span>
+<span class="c">&lt;!-- design-contract: skip og-tags reason=internal-meta-essay --&gt;</span></pre>
+    <p>The reviewer (you, future self, the next agent) now knows the omission was a choice, not a miss.</p>
+  </section>
+
+  <!-- ====================== 4. SANDBOX ====================== -->
+  <section id="sandbox" class="wide fade">
+    <div class="sec-head">
+      <span class="num">§ 04</span>
+      <h2>The sandbox, in detail</h2>
+    </div>
+    <p style="max-width: 72ch;">The portal renders every artifact inside an iframe with <code>sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox"</code>. That is the entire permission set. Everything else is off. This is the most common source of "it worked locally but not in the portal" — your file <em>didn't</em> work locally either, you just didn't notice the silent failure.</p>
+
+    <div class="matrix">
+      <div class="matrix-cell">
+        <div class="api">localStorage</div>
+        <span class="status bad">SecurityError</span>
+        <div class="desc">Throws on read or write. Wrap in try/catch or don't use it.</div>
+      </div>
+      <div class="matrix-cell">
+        <div class="api">sessionStorage</div>
+        <span class="status bad">SecurityError</span>
+        <div class="desc">Same fate as localStorage. State must be in-memory only.</div>
+      </div>
+      <div class="matrix-cell">
+        <div class="api">document.cookie</div>
+        <span class="status bad">Empty / no-op</span>
+        <div class="desc">Reads return empty string. Writes silently discarded.</div>
+      </div>
+      <div class="matrix-cell">
+        <div class="api">&lt;form action=...&gt;</div>
+        <span class="status bad">Silently breaks</span>
+        <div class="desc">No allow-forms. Submission goes nowhere. Use JS handlers or skip forms.</div>
+      </div>
+      <div class="matrix-cell">
+        <div class="api">window.open</div>
+        <span class="status warn">Use with care</span>
+        <div class="desc">allow-popups is present, so window.open works — but prefer target="_blank" anchors; they're more predictable and don't require allow-popups-to-escape-sandbox to work properly.</div>
+      </div>
+      <div class="matrix-cell">
+        <div class="api">window.parent.*</div>
+        <span class="status warn">One channel only</span>
+        <div class="desc">Reading parent properties throws (cross-origin). postMessage works — the portal listens for <code>{ type: 'portal:theme:request' }</code> and responds with the current theme.</div>
+      </div>
+      <div class="matrix-cell">
+        <div class="api">fetch() / XHR</div>
+        <span class="status warn">CORS-bound</span>
+        <div class="desc">Works for CORS-friendly hosts. Avoid runtime API dependencies; render static.</div>
+      </div>
+      <div class="matrix-cell">
+        <div class="api">&lt;a target="_blank"&gt;</div>
+        <span class="status good">Works</span>
+        <div class="desc">The only sanctioned exit. Always pair with rel="noopener noreferrer".</div>
+      </div>
+      <div class="matrix-cell">
+        <div class="api">inline script</div>
+        <span class="status good">Works</span>
+        <div class="desc">Full JS runs. Animations, state, DOM mutations — all fine.</div>
+      </div>
+      <div class="matrix-cell">
+        <div class="api">CDN fonts / images</div>
+        <span class="status good">Works</span>
+        <div class="desc">External GET requests to public resources are allowed.</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="lab">Heuristic</div>
+      If your artifact needs to remember anything between page loads, it doesn't belong in the portal — it belongs in an app. The portal serves <strong>finished work</strong>, not running software.
+    </div>
+  </section>
+
+  <!-- ====================== 5. FREEDOM ====================== -->
+  <section id="freedom" class="fade">
+    <div class="sec-head">
+      <span class="num">§ 05</span>
+      <h2>On design freedom</h2>
+    </div>
+    <p>The contract is a floor, not a style guide. Once you have satisfied it, everything else is yours: palette, typography, layout, motion, density, illustration, voice. <strong>Each artifact is its own world.</strong> The portal shell is dark, terminal-flavored, technical; the artifacts inside it can be light, ornate, brutalist, playful, severe — whatever the content asks for.</p>
+
+    <p>The first three articles deliberately stake out different territories so the pattern is visible:</p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>No.</th>
+          <th>Title</th>
+          <th>Register</th>
+          <th>Palette</th>
+          <th>Typography</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>001</td>
+          <td>About the Artifact Portal</td>
+          <td>Literary essay</td>
+          <td>Fixed dark editorial</td>
+          <td>Cormorant + Lora + Geist Mono</td>
+        </tr>
+        <tr>
+          <td>002</td>
+          <td>The HTML manifesto</td>
+          <td>Magazine feature</td>
+          <td>Light parchment</td>
+          <td>Display serif + body sans</td>
+        </tr>
+        <tr>
+          <td>003</td>
+          <td>This piece</td>
+          <td>Operational reference</td>
+          <td>Adaptive light / dark</td>
+          <td>Fraunces + Inter + JetBrains Mono</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>None of these is "the portal house style." There <em>is</em> no portal house style for content. There is a contract, a sandbox, a filing system, and a reader. The rest is up to whoever's writing.</p>
+
+    <h3>What the freedom is for</h3>
+    <p>The freedom exists because <strong>different artifacts have different jobs</strong>. A code review wants monospace and diff colors. A trip report wants photographs and serif body. A dashboard wants charts and dense tables. A spec wants ordered headings and code blocks. Forcing all of them into one visual vocabulary would compress the very thing the format is good at.</p>
+    <p>The freedom is <em>not</em> for vibes. If a design choice doesn't make the content clearer or the reading better, it's noise. The contract sets the floor; taste sets the ceiling.</p>
+  </section>
+
+  <!-- ====================== 6. CLOSING ====================== -->
+  <section id="close" class="closing fade">
+    <div class="label">Before you publish</div>
+    <h2>The five-second pre-flight</h2>
+    <p>You have written your file. The fonts loaded. The hero looks good. Before you POST <code>/api/artifacts</code>, run this sequence. It takes longer to read than to do.</p>
+
+    <div class="next-steps">
+      <ol>
+        <li><b>Resize the window to 360px wide.</b> If anything spills horizontally, fix it now. This is the single most common portal-day-one bug.</li>
+        <li><b>Toggle your OS to the color scheme you didn't design for.</b> If you skipped adaptive color, the document should still be legible — fixed schemes are fine, broken ones are not.</li>
+        <li><b>Open the file in the portal's preview, not your local browser.</b> Local browsers don't enforce <code>sandbox="allow-scripts"</code>. The portal does. Test where it will live.</li>
+        <li><b>Read your own title and tags out loud.</b> If the title doesn't survive being said, the slug won't survive being typed. Tags should be the words the searcher would think of, not the words you used in the prose.</li>
+        <li><b>Pick the right category.</b> Five options: <code>spec</code>, <code>report</code>, <code>prototype</code>, <code>review</code>, <code>other</code>. "Other" is a confession, not a choice. Use it once a year.</li>
+        <li><b>Set visibility honestly.</b> <code>private</code> by default. <code>unlisted</code> if you'll share the URL. <code>public</code> only if you'd put it on the front page.</li>
+        <li><b>POST it.</b> Title it well. Set the category honestly. Tag it for the reader you cannot see.</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="colophon">
+    <span>Anatomy / v1 / Reference</span>
+    <span>design-contract: v1 · adaptive</span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ----- Fade-in on scroll -----
+  if (!reduceMotion && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.fade').forEach((el) => io.observe(el));
+  } else {
+    document.querySelectorAll('.fade').forEach((el) => el.classList.add('in'));
+  }
+
+  // ----- Anatomy interactive diagram -----
+  const blocks = [
+    {
+      title: 'Masthead',
+      meta: 'Geist Mono · uppercase · tracked 0.12em · top rule',
+      job: 'orient the reader in two seconds. Tells them where they are (the portal), what kind of thing they\'re reading (essay), and which one (No. 001).',
+      works: 'tiny footprint, big information return. The numbering implies a series, which is itself a promise.',
+      verdict: 'good',
+      verdictText: 'Reads well · keep'
+    },
+    {
+      title: 'Hero',
+      meta: 'Cormorant Garamond H1 · italic subtitle · 4-field byline',
+      job: 'state the title, set the register, and prove the typography in one screen-height. The byline grid does the metadata work so the prose can stay literary.',
+      works: 'the italic subtitle softens the serif H1; the byline grid gives the eye somewhere to land before the prose starts.',
+      verdict: 'good',
+      verdictText: 'Strong opening'
+    },
+    {
+      title: '§1 The complaint',
+      meta: 'numbered section rule · pull quote · drop cap',
+      job: 'voice-forward opener. "The Artifact Portal began as a complaint." The pull quote isolates the thesis.',
+      works: 'memorable first line. Drop cap signals "this is prose, not docs" before the reader has parsed a word.',
+      verdict: 'good',
+      verdictText: 'Voice is the headline asset'
+    },
+    {
+      title: '§2 Flow + spec',
+      meta: 'Agent→API→Portal→Owner diagram · category pills · 2×2 spec grid',
+      job: 'the only "informational" section. Gives the reader the system shape and the surface area at a glance.',
+      works: 'concrete after two abstract sections. The 2×2 grid lets the eye scan four facts simultaneously.',
+      verdict: 'good',
+      verdictText: 'Density done right'
+    },
+    {
+      title: '§3 Negative space',
+      meta: 'pull quote · prose only',
+      job: 'philosophical pivot — the portal as the part of the system that isn\'t intelligent. "Just trying to remember."',
+      works: 'best line in the piece. The whole essay justifies its existence here.',
+      verdict: 'good',
+      verdictText: 'Thesis lands'
+    },
+    {
+      title: '§4 API examples',
+      meta: 'two curl blocks · monospace · POST + PATCH',
+      job: 'show the literal interface. An agent reading this should be able to publish from this section alone.',
+      works: 'curl is the right primitive. The two-example structure (create + update) covers the lifecycle.',
+      verdict: 'warn',
+      verdictText: 'Tonal whiplash · register break'
+    },
+    {
+      title: '§5 HTML thesis',
+      meta: 'pull quote · short section',
+      job: 'argue for HTML as the chosen format. "The document and the program are the same thing."',
+      works: 'tight, single-claim section. Earns the pull quote.',
+      verdict: 'good',
+      verdictText: 'Crisp argument'
+    },
+    {
+      title: '§6 Letter to agents',
+      meta: 'closing prose · directly addressed · imperative voice',
+      job: 'hand the baton. The piece pivots from "what we built" to "what you should do" in the final paragraph.',
+      works: 'the second-person turn is unexpected and effective. Reads like a colophon written by the building itself.',
+      verdict: 'good',
+      verdictText: 'Memorable close'
+    },
+    {
+      title: 'Footer',
+      meta: 'v1.0 / 22 Workstreams / 5 Phases / One Reader / FIN',
+      job: 'sign off with metadata-as-mood. Numbers that mean something today.',
+      works: 'the rhythm is good; "FIN" closes with theatre rather than apology.',
+      verdict: 'warn',
+      verdictText: 'Will age · "22 Workstreams" dates fast'
+    }
+  ];
+
+  const detail = document.getElementById('anatomy-detail');
+  const buttons = document.querySelectorAll('.a-block');
+
+  function render(idx) {
+    const b = blocks[idx];
+    detail.innerHTML =
+      '<div class="d-num">Block ' + String(idx + 1).padStart(2, '0') + ' of 09</div>' +
+      '<h4>' + b.title + '</h4>' +
+      '<div class="d-meta">' + b.meta + '</div>' +
+      '<p><strong>Job:</strong> ' + b.job + '</p>' +
+      '<p><strong>What works:</strong> ' + b.works + '</p>' +
+      '<span class="verdict ' + b.verdict + '">' + b.verdictText + '</span>';
+    buttons.forEach((btn, i) => {
+      const active = i === idx;
+      btn.classList.toggle('active', active);
+      btn.setAttribute('aria-selected', active ? 'true' : 'false');
+    });
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = parseInt(btn.getAttribute('data-id'), 10);
+      if (!isNaN(id) && blocks[id]) render(id);
+    });
+  });
+
+  // ----- Checklist interactivity -----
+  const items = document.querySelectorAll('.check-item');
+  const count = document.getElementById('check-count');
+  const fill = document.getElementById('check-fill');
+
+  function updateProgress() {
+    const total = items.length;
+    let done = 0;
+    items.forEach((it) => { if (it.classList.contains('done')) done++; });
+    count.textContent = done + ' / ' + total;
+    fill.style.width = (done / total * 100) + '%';
+  }
+  updateProgress();
+
+  items.forEach((it) => {
+    it.setAttribute('role', 'button');
+    it.setAttribute('tabindex', '0');
+    const toggle = () => {
+      it.classList.toggle('done');
+      updateProgress();
+    };
+    it.addEventListener('click', toggle);
+    it.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggle();
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
