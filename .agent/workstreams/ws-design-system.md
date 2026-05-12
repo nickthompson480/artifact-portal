@@ -10,7 +10,7 @@ phase: 2
 ## What done looks like
 
 ### Tokens
-- `src/styles/colors_and_type.css` is a verbatim copy of `IMPORTS/personal-web/project/colors_and_type.css`.
+- `src/styles/colors_and_type.css` is a verbatim copy of `frontend/src/styles/colors_and_type.css`.
 - Imported once in `src/main.jsx` (above any component imports).
 - Google Fonts link (DM Serif Display + DM Sans + DM Mono) loaded via `index.html` `<link>` (preferred — avoids @import latency) AND `colors_and_type.css`'s `@import` is kept as fallback.
 
@@ -52,7 +52,7 @@ export function categoryColorVar(cat) { return `var(--cat-${(CATEGORY_META[cat] 
 
 ### Storybook-lite (optional but recommended)
 
-`src/views/Preview.jsx` (route `/__preview` in dev only) renders one of each component with seeded artifacts so the work can be visually checked against `IMPORTS/personal-web/project/Artifact Portal.html`.
+`src/views/Preview.jsx` (route `/__preview` in dev only) renders one of each component with seeded artifacts so the work can be visually checked against the design reference.
 
 ## Key files
 
@@ -62,7 +62,7 @@ export function categoryColorVar(cat) { return `var(--cat-${(CATEGORY_META[cat] 
 
 ## Acceptance
 
-1. Open `Preview.jsx` route side-by-side with `IMPORTS/personal-web/project/Artifact Portal.html` — pixel-level parity for each component (badge sizes, padding, colors, hover states).
+1. Open `Preview.jsx` route side-by-side with `the design reference` — pixel-level parity for each component (badge sizes, padding, colors, hover states).
 2. `rg -n '#[0-9A-Fa-f]{3,8}' src --glob '!styles/colors_and_type.css'` — zero matches in components/.
 3. Switching `data-theme` to `light` re-themes every component without code changes.
 

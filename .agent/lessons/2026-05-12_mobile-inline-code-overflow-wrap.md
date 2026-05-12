@@ -3,7 +3,6 @@ id: 2026-05-12_mobile-inline-code-overflow-wrap
 date: 2026-05-12
 tags: [mobile, css, design-contract, overflow]
 workstream: ""
-routed_to: "web.artifact-portal"
 ---
 
 ## Lesson
@@ -29,4 +28,4 @@ Also needed:
 
 ## Routed
 
-Appended to `web.artifact-portal` SKILL.md Gotchas (Design Contract section).
+Documented in CLAUDE.md (Design Contract section).

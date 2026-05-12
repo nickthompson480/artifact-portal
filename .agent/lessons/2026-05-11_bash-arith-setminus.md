@@ -4,7 +4,6 @@ type: lesson
 date: 2026-05-11
 tags: [bash, scripting, set-e]
 workstream: scripts
-routed_to: null
 ---
 
 ## Lesson

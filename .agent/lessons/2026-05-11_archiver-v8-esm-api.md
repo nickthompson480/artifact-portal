@@ -3,7 +3,6 @@ id: 2026-05-11_archiver-v8-esm-api
 date: 2026-05-11
 tags: [esm, dependencies, archiver, breaking-change]
 workstream: ws-export
-routed_to: null
 ---
 
 ## Lesson

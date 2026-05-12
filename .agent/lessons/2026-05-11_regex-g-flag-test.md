@@ -4,7 +4,6 @@ type: lesson
 date: 2026-05-11
 tags: [javascript, react, regex, bug]
 workstream: ws-search-overlay
-routed_to: null
 ---
 
 ## Lesson

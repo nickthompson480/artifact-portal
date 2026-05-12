@@ -3,7 +3,6 @@ id: 2026-05-12_agent-put-file-slug-preservation
 date: 2026-05-12
 tags: [agent-api, slug, file-replace, versioning]
 workstream: ws-agent-api
-routed_to: "web.artifact-portal"
 ---
 
 ## Lesson
@@ -22,4 +21,4 @@ PATCH returned a valid artifact object even when the file= field was ignored. Ag
 
 ## Routed
 
-Gotchas in `web.artifact-portal` SKILL.md already updated this session — PATCH gotcha revised, "overwrite on disk" emergency workaround removed, new PUT endpoint documented with curl examples.
+CLAUDE.md already updated this session — PATCH gotcha revised, new PUT endpoint documented with curl examples.

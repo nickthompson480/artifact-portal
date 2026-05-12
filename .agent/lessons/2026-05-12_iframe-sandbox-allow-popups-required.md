@@ -3,7 +3,6 @@ id: 2026-05-12_iframe-sandbox-allow-popups-required
 date: 2026-05-12
 tags: [iframe, sandbox, links, ux]
 workstream: ""
-routed_to: "web.artifact-portal"
 ---
 
 ## Lesson
@@ -18,4 +17,4 @@ The design contract's instruction to use `target="_blank"` implies it works. The
 
 ## Routed
 
-Appended to `web.artifact-portal` SKILL.md Gotchas.
+Documented in CLAUDE.md.

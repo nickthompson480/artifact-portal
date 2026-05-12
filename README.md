@@ -4,7 +4,7 @@ A self-hosted web portal for publishing and browsing AI-generated HTML artifacts
 
 **Single user. Single machine. No cloud services required.**
 
-![Dark-themed portal feed](https://placeholder.invalid/screenshot)
+<!-- screenshot goes here -->
 
 ## Features
 
@@ -49,7 +49,9 @@ cd frontend && npm install && npm run build && cd ..
 node server.js
 ```
 
-Visit `http://localhost:3000`. On first run you'll be prompted to set a password.
+Visit `http://localhost:4567`. On first run you'll be prompted to set a password.
+
+> **Network exposure:** The server binds to `0.0.0.0` by default, so it is reachable from other devices on your local network (useful for publishing from an AI agent running on a different machine). To restrict to localhost only, change `'0.0.0.0'` to `'127.0.0.1'` in `server.js:58`.
 
 > **Note on `better-sqlite3`:** This package uses a native addon. If the install fails, you may need Python 3 available: `npm_config_python=$(which python3) npm install`
 
@@ -63,7 +65,7 @@ node --watch server.js
 cd frontend && npm run dev
 ```
 
-Frontend dev server runs at `http://localhost:5173` and proxies API requests to `:3000`.
+Frontend dev server runs at `http://localhost:5173` and proxies API requests to `:4567`.
 
 ## Configuration
 
@@ -76,7 +78,7 @@ cp .env.example ~/.artifact-portal/.env
 
 | Variable | Default | Description |
 |---|---|---|
-| `PORT` | `3000` | Server port |
+| `PORT` | `4567` | Server port |
 | `JWT_SECRET` | auto-generated | JWT signing secret — set explicitly in production |
 | `DB_PATH` | `~/.artifact-portal/db.sqlite` | SQLite database path |
 | `FILES_DIR` | `~/.artifact-portal/files` | Artifact HTML file storage |
@@ -115,36 +117,41 @@ launchctl load ~/Library/LaunchAgents/com.artifact-portal.plist
 
 ## Publishing artifacts (Agent API)
 
-Create an API key in Settings, then:
+Create an API key in **Settings → API Keys**, then:
+
+> Keys look like `pk_live_<32 chars>`. The key is shown once at creation — store it before closing the dialog.
 
 ```bash
-curl -X POST http://localhost:3000/api/artifacts \
-  -H "X-API-Key: ap_<your-key>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "My Report",
-    "html": "<!DOCTYPE html><html>...</html>",
-    "tags": ["report", "q1"],
-    "visibility": "private"
-  }'
+# Publish a new artifact (multipart/form-data with a 'file' field)
+curl -X POST http://localhost:4567/api/artifacts \
+  -H "X-API-Key: pk_live_<your-key>" \
+  -F "title=My Report" \
+  -F "tags=report,q1" \
+  -F "visibility=private" \
+  -F "file=@report.html"
+
+# Or pipe HTML directly from a script
+echo '<html>...</html>' | curl -X POST http://localhost:4567/api/artifacts \
+  -H "X-API-Key: pk_live_<your-key>" \
+  -F "title=My Report" \
+  -F "file=@-;type=text/html"
 ```
 
-**Validate before publishing:**
+**Validate before publishing** (always returns HTTP 200; check the `valid` field):
 
 ```bash
-curl -X POST http://localhost:3000/api/validate \
-  -H "X-API-Key: ap_<your-key>" \
-  -H "Content-Type: application/json" \
-  -d '{"html": "..."}'
+curl -X POST http://localhost:4567/api/validate \
+  -H "X-API-Key: pk_live_<your-key>" \
+  -F "file=@report.html"
+# Response: { "valid": true, "errors": [], "warnings": [] }
 ```
 
-**Replace an artifact's HTML** (preserves slug and metadata):
+**Replace an artifact's HTML** (preserves slug, id, and metadata):
 
 ```bash
-curl -X PUT http://localhost:3000/api/artifacts/<id>/file \
-  -H "X-API-Key: ap_<your-key>" \
-  -H "Content-Type: application/json" \
-  -d '{"html": "..."}'
+curl -X PUT http://localhost:4567/api/artifacts/<id>/file \
+  -H "X-API-Key: pk_live_<your-key>" \
+  -F "file=@updated-report.html"
 ```
 
 ### Theme-adaptive artifacts

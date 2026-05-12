@@ -20,7 +20,7 @@ The `@media (prefers-color-scheme: dark)` pattern is explicitly retired from the
 
 ## Design contract impact
 
-- Design contract updated in `web.artifact-portal` SKILL.md
+- Design contract updated in CLAUDE.md
 - Compliance checklist item updated: "portal:theme postMessage listener + [data-scheme] CSS, OR skip comment"
 - Minimal compliant template updated
 - All three existing artifacts patched to conform

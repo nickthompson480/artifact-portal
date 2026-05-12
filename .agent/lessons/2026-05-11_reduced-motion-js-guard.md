@@ -5,7 +5,6 @@ date: 2026-05-11
 tags: [accessibility, animation, javascript, html-artifacts]
 workstream: ""
 session: "2026-05-11T23-57"
-routed_to: ["web.artifact-portal"]
 ---
 
 The CSS `@media (prefers-reduced-motion: reduce)` block disables CSS animations and transitions but does NOT stop JS-driven animations. IntersectionObserver reveal callbacks, requestAnimationFrame loops, and mousemove parallax handlers all bypass it entirely.

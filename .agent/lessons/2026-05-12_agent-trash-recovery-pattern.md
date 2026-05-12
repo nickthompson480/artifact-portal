@@ -3,7 +3,6 @@ id: 2026-05-12_agent-trash-recovery-pattern
 date: 2026-05-12
 tags: [agent-api, soft-delete, slug, trash, restore]
 workstream: ws-agent-api
-routed_to: "web.artifact-portal"
 ---
 
 ## Lesson
@@ -26,4 +25,4 @@ The full self-recovery workflow for an agent that deleted and lost the slug:
 
 ## Routed
 
-`web.artifact-portal` SKILL.md updated: list endpoint docs expanded, new Restore section added, slug-reservation gotcha expanded to cover full recovery workflow.
+CLAUDE.md updated: list endpoint docs expanded, new Restore section added, slug-reservation gotcha expanded to cover full recovery workflow.

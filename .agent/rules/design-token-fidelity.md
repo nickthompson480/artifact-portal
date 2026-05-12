@@ -7,7 +7,7 @@ checkable: true
 
 ## Why
 
-The design handoff is hi-fi and locked. The token values in `IMPORTS/personal-web/project/colors_and_type.css` are the source of truth — every component already references them by name. Allowing one-off hex literals in components silently fragments the design system; the next theme change (e.g. light theme already exists in the same file) breaks unevenly.
+The design system is locked. The token values in `frontend/src/styles/colors_and_type.css` are the source of truth — every component references them by name. Allowing one-off hex literals in components silently fragments the design system; the next theme change breaks unevenly.
 
 ## How to check
 

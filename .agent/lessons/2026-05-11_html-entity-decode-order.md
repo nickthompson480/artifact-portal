@@ -3,7 +3,6 @@ id: 2026-05-11_html-entity-decode-order
 date: 2026-05-11
 tags: [html, parsing, strip-html, fts]
 workstream: ws-fts-content
-routed_to: null
 ---
 
 ## Lesson

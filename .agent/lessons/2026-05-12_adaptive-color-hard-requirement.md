@@ -5,7 +5,6 @@ date: 2026-05-12
 tags: [design-contract, artifacts, color-scheme]
 workstream: ""
 session: "2026-05-12T00-36"
-routed_to: ["web.artifact-portal"]
 ---
 
 Adaptive light/dark mode is a hard requirement for all artifacts, not a strong recommendation that can be skipped. Artifacts may choose their own light and dark palettes freely — design freedom applies to the aesthetic, not to whether both modes exist.

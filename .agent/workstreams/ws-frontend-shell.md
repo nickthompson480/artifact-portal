@@ -18,7 +18,7 @@ phase: 2
   - Dev proxy: `/login`, `/logout`, `/me`, `/setup`, `/artifacts`, `/api`, `/settings`, `/share`, `/p`, `/public`, `/healthz` → `http://127.0.0.1:3000`
 - `frontend/index.html` with `<link>` for DM Serif Display + DM Sans + DM Mono (or imported via CSS).
 - `src/main.jsx` mounts `<App />` with `<BrowserRouter>`.
-- `src/styles/colors_and_type.css` — **exact copy** of `IMPORTS/personal-web/project/colors_and_type.css`. No edits.
+- `src/styles/colors_and_type.css` — **exact copy** of `frontend/src/styles/colors_and_type.css`. No edits.
 
 ### Routing (App.jsx)
 

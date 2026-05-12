@@ -50,7 +50,7 @@ All routes mounted on `routes/api.js` under `/api`, all gated by `requireApiKey`
 
 ## Acceptance
 
-1. Helper script `scripts/seed.js` uses `pk_live_...` to publish 50 artifacts (drawn from `IMPORTS/personal-web/project/portal-data.js` data + the four `makeSpecDoc / makeReportDoc / makeProtoDoc / makeReviewDoc` HTML generators) → succeeds.
+1. Helper script `scripts/seed.js` uses `pk_live_...` to publish 50 artifacts (drawn from generated test data) → succeeds.
 2. `curl -H "X-API-Key: $K" http://127.0.0.1:3000/api/artifacts` returns the 50.
 3. Files exist at `~/.artifact-portal/files/*.html` matching the row count.
 4. `DELETE /api/artifacts/:id` sets `deleted_at`; subsequent `GET /api/artifacts/:id` returns 404; file is still on disk.

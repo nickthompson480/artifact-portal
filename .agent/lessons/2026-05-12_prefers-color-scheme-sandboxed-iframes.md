@@ -5,7 +5,6 @@ date: 2026-05-12
 tags: [iframe, sandbox, color-scheme, css, postMessage]
 workstream: ""
 session: "2026-05-12T00-36"
-routed_to: ["web.artifact-portal"]
 ---
 
 `prefers-color-scheme` inside a sandboxed iframe (no `allow-same-origin`) reflects the OS preference, NOT the parent page's `color-scheme` CSS property or any `data-theme` attribute. Setting `color-scheme: light` on the portal's `:root` or on the `<iframe>` element does NOT propagate into sandboxed artifacts — Chromium, Safari, and Firefox all treat these as opaque-origin documents.

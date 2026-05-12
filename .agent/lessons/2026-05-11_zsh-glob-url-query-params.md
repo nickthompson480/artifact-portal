@@ -5,7 +5,6 @@ date: 2026-05-11
 tags: [zsh, cli, urls, glob]
 workstream: ""
 session: "2026-05-11T23-57"
-routed_to: ["web.twitter"]
 ---
 
 URLs containing `?` query parameters must be quoted when passed as shell arguments in zsh. Unquoted, zsh interprets `?` as a single-character glob and throws "no matches found" before the script even runs.

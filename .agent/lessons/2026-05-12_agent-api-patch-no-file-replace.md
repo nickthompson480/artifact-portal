@@ -5,7 +5,6 @@ date: 2026-05-12
 tags: [agent-api, artifact-portal, file-replace]
 workstream: "ws-agent-api"
 session: "2026-05-12T02-32"
-routed_to: ["web.artifact-portal"]
 ---
 
 The agent API `PATCH /api/artifacts/:id` with a multipart `file=` field does NOT replace the artifact's HTML file. It silently ignores the file and only updates the JSON metadata fields. The response still returns a valid artifact object, giving a false impression of success.

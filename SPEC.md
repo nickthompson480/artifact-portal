@@ -63,7 +63,7 @@ artifact-portal/
 │
 └── frontend/
     ├── package.json
-    ├── vite.config.js              # proxy /artifacts, /api, /settings, /login to :3000
+    ├── vite.config.js              # proxy /artifacts, /api, /settings, /login to :4567
     └── src/
         ├── main.jsx
         ├── App.jsx                 # Router + shell

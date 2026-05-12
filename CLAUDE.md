@@ -23,21 +23,22 @@ Frontend:    React 18 + React Router 6 + Vite
 node --watch server.js
 # or: npx nodemon server.js
 
-# Frontend (Vite dev server with HMR, proxies API to :3000)
+# Frontend (Vite dev server with HMR, proxies API to :4567)
 cd frontend && npm run dev
 ```
 
-Visit `http://localhost:5173` during dev. The built SPA is served by Express on `http://localhost:3000`.
+Visit `http://localhost:5173` during dev. The built SPA is served by Express on `http://localhost:4567`.
 
 ## How to run (production)
 
 ```bash
-cd frontend && npm run build && cd ..
+npm install
+cd frontend && npm install && npm run build && cd ..
 node server.js
-# Visit http://localhost:3000
+# Visit http://localhost:4567
 ```
 
-On macOS you can auto-start with launchd — see the `launchd` section in `SPEC.md`.
+On macOS you can auto-start with a launchd plist — see the example in `README.md`.
 
 ## Data paths
 
@@ -52,7 +53,7 @@ The server creates `~/.artifact-portal/` on first run if missing.
 ## Environment variables
 
 ```
-PORT=3000                # default
+PORT=4567                # default
 JWT_SECRET=<random>      # generated and stored on first run if absent
 DB_PATH=~/.artifact-portal/db.sqlite
 FILES_DIR=~/.artifact-portal/files
@@ -88,8 +89,8 @@ artifact-portal/
 Agents publish artifacts via `POST /api/artifacts` with an `X-API-Key` header. Create API keys in the Settings page — the key is shown exactly once at creation.
 
 ```bash
-curl -X POST http://localhost:3000/api/artifacts \
-  -H "X-API-Key: ap_<your-key>" \
+curl -X POST http://localhost:4567/api/artifacts \
+  -H "X-API-Key: pk_live_<your-key>" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "My Report",

@@ -3,7 +3,7 @@ id: "2026-05-12_artifact-design-contract-v0-3-0"
 type: decision
 date: 2026-05-12
 choice: "Add a fourth Reference tier to the Design Contract for CDN resource catalog; add HTTPS-only and no-blind-SRI as hard requirements"
-scope: "web.artifact-portal skill, artifact HTML generation"
+scope: "artifact HTML generation"
 status: active
 ---
 
@@ -21,7 +21,7 @@ Extend the Design Contract to v0.3.0 with:
 
 ## Why
 
-Opus consultation confirmed the tier framing: folding catalog content into hard requirements over-constrains; putting it in design freedom buries operational gotchas. A separate Reference tier answers "what can I use?" without adding compliance burden.
+The tier framing was confirmed: folding catalog content into hard requirements over-constrains; putting it in design freedom buries operational gotchas. A separate Reference tier answers "what can I use?" without adding compliance burden.
 
 The HTTPS-only and no-SRI rules were previously implied but not stated — silent failure modes (mixed-content blocking, wrong SRI hashes) warranted explicit promotion.
 

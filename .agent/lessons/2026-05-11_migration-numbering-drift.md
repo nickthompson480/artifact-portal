@@ -4,7 +4,6 @@ type: lesson
 date: 2026-05-11
 tags: [sqlite, migrations, sequencing]
 workstream: ws-fts-content
-routed_to: null
 ---
 
 ## Lesson

@@ -9,7 +9,7 @@ phase: 5
 
 ## What done looks like
 
-`POST /api/validate` is live on the server, protected by `requireApiKey`, accepting the same multipart payload as `POST /api/artifacts`. Returns a JSON findings report — `valid` bool + array of findings with `severity`, `rule`, `message`. Documented in the web.artifact-portal skill.
+`POST /api/validate` is live on the server, protected by `requireApiKey`, accepting the same multipart payload as `POST /api/artifacts`. Returns a JSON findings report — `valid` bool + array of findings with `severity`, `rule`, `message`. Documented in CLAUDE.md.
 
 ```bash
 printf '%s' "$HTML" | curl -X POST "$PORTAL_URL/api/validate" \

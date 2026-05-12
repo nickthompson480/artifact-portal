@@ -3,7 +3,6 @@ name: mobile-image-fixed-px-override
 date: 2026-05-12
 tags: [mobile, images, css, artifacts]
 workstream: ""
-routed_to: create.gemini-imagen
 ---
 
 # Fixed px max-width on img breaks mobile even with max-width:100%

@@ -5,7 +5,6 @@ date: 2026-05-12
 tags: [react, iframe, history, back-button, viewer]
 workstream: ""
 session: "2026-05-12T05-58"
-routed_to: []
 ---
 
 Setting an iframe's `src` attribute declaratively (or changing it) pushes a joint session history entry into the top-level browsing context. `navigate(-1)` / `history.go(-1)` steps through this invisible entry first — the URL doesn't visibly change but the user's Back button press is consumed. On a page with multiple artifact navigations this compounds: effectively one extra press is needed per viewer visited.
