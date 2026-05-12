@@ -218,15 +218,28 @@ artifact-portal/
 
 ```bash
 # Publish both — assumes ARTIFACT_PORTAL_KEY and ARTIFACT_PORTAL_URL are set
-for f in examples/*.html; do
-  title=$(grep -o '<title>[^<]*</title>' "$f" | sed 's/<[^>]*>//g')
-  printf '%s' "$(cat "$f")" | curl -s -X POST "$ARTIFACT_PORTAL_URL/api/artifacts" \
+
+printf '%s' "$(cat examples/about-the-artifact-portal.html)" \
+  | curl -s -X POST "$ARTIFACT_PORTAL_URL/api/artifacts" \
     -H "X-API-Key: $ARTIFACT_PORTAL_KEY" \
-    -F "title=$title" \
+    -F "title=About the Artifact Portal" \
     -F "category=spec" \
     -F "visibility=public" \
-    -F "file=@-;filename=artifact.html" | python3 -c "import json,sys; a=json.load(sys.stdin); print('published:', a['slug'])"
-done
+    -F "tags=meta,origin,design,documentation" \
+    -F "description=Origin story, architecture, and design rationale for the Artifact Portal — why HTML, how agents publish, and how the system was built." \
+    -F "file=@-;filename=artifact.html" \
+  | python3 -c "import json,sys; a=json.load(sys.stdin); print('published:', a['slug'])"
+
+printf '%s' "$(cat examples/anatomy-of-a-good-artifact.html)" \
+  | curl -s -X POST "$ARTIFACT_PORTAL_URL/api/artifacts" \
+    -H "X-API-Key: $ARTIFACT_PORTAL_KEY" \
+    -F "title=Anatomy of a Good Artifact" \
+    -F "category=spec" \
+    -F "visibility=public" \
+    -F "tags=meta,reference,design-contract,html,guide" \
+    -F "description=A dissection of what makes a published artifact work — structure, density, sandbox compliance, visual clarity, and design freedom." \
+    -F "file=@-;filename=artifact.html" \
+  | python3 -c "import json,sys; a=json.load(sys.stdin); print('published:', a['slug'])"
 ```
 
 | File | What it is |
