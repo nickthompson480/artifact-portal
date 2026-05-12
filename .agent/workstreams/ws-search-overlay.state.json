@@ -1,0 +1,7 @@
+{
+  "state": "complete",
+  "depends_on": [
+    "ws-feed-view",
+    "ws-owner-api"
+  ]
+}

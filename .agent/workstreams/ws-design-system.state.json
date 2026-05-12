@@ -1,0 +1,6 @@
+{
+  "state": "complete",
+  "depends_on": [
+    "ws-frontend-shell"
+  ]
+}
