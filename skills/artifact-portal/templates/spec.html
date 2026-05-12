@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <title>{{title}}</title>
+  <!-- design-contract: v1 -->
+  <meta property="og:title" content="{{title}}">
+  <meta property="og:description" content="One-sentence summary.">
+  <meta property="og:type" content="article">
+  <!-- og:image: add <meta property="og:image" content="..."> here if sharing externally -->
+  <script>
+    (function(){
+      var d = document.documentElement;
+      d.setAttribute('data-scheme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      window.addEventListener('message', function(e){
+        if (e.data && e.data.type === 'portal:theme' && (e.data.theme === 'light' || e.data.theme === 'dark'))
+          d.setAttribute('data-scheme', e.data.theme);
+      });
+    })();
+  </script>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #ffffff;
+      --fg: #14110f;
+      --muted: #5c5a55;
+      --accent: #d8421b;
+    }
+    [data-scheme="dark"] {
+      color-scheme: dark;
+      --bg: #0c0e14;
+      --fg: #ede9e3;
+      --muted: #9a968f;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { min-height: 100%; margin: 0; }
+    body {
+      background: var(--bg);
+      color: var(--fg);
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 48px 24px;
+    }
+    main { max-width: 72ch; margin: 0 auto; }
+    pre, code { overflow-x: auto; max-width: 100%; }
+    img, svg, video, iframe { max-width: 100%; height: auto; }
+    a { color: var(--accent); }
+    button, a.button {
+      min-height: 36px;
+      padding: 8px 16px;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>{{title}}</h1>
+
+    <p>{{body content}}</p>
+
+    <!-- PROVENANCE: optional for spec. Place at bottom before closing </main>. Uncomment if applicable, delete if not. -->
+    <!--
+    <section aria-labelledby="context-heading" style="margin-top:3rem; padding-top:1.5rem; border-top:1px solid var(--muted);">
+      <h2 id="context-heading">Context</h2>
+      <p>{{background, constraints, or problem statement that prompted this spec}}</p>
+    </section>
+    -->
+  </main>
+</body>
+</html>

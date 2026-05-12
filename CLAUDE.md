@@ -84,43 +84,22 @@ artifact-portal/
         └── views/
 ```
 
-## Agent API (publishing artifacts)
+## Publishing artifacts (for AI agents)
 
-Agents publish artifacts via `POST /api/artifacts` with an `X-API-Key` header. Create API keys in the Settings page — the key is shown exactly once at creation.
+If you are an AI agent working in this repo and need to publish to the portal, the canonical instructions live in `skills/artifact-portal/`. Load them before generating HTML or calling the API:
 
-```bash
-curl -X POST http://localhost:4567/api/artifacts \
-  -H "X-API-Key: pk_live_<your-key>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "My Report",
-    "html": "<html>...</html>",
-    "tags": ["report"],
-    "visibility": "private"
-  }'
-```
+@skills/artifact-portal/SKILL.md
 
-See `routes/api.js` for the full surface (list, get, update metadata, replace file, delete).
+`SKILL.md` covers the full agent REST API (publish, update, delete, validate, share, version history), authentication, error codes, and the publish workflow. It references two companions you should load on demand when relevant:
 
-To replace an artifact's HTML without changing its slug: `PUT /api/artifacts/:id/file`.
+- `skills/artifact-portal/design-contract.md` — the 11 hard requirements and strong recommendations every published HTML artifact must satisfy. Load this before generating or editing HTML.
+- `skills/artifact-portal/reference.md` — non-prescriptive catalog of fonts, icon sets, JS libraries, and CDNs known to work in the sandboxed iframe. Load this when picking external resources.
 
-## HTML artifact design contract
+Starter templates for the four categories (`spec`, `report`, `review`, `prototype`) are in `skills/artifact-portal/templates/`.
 
-Artifacts rendered in the viewer are sandboxed (`sandbox="allow-scripts"`, no `allow-same-origin`). The portal sends the current theme via `postMessage`:
+### One-line summary of the design contract
 
-```js
-// In your artifact's IIFE — request the theme synchronously on load
-(function () {
-  window.parent.postMessage({ type: 'portal:theme:request' }, '*');
-  window.addEventListener('message', (e) => {
-    if (e.data?.type === 'portal:theme') {
-      document.documentElement.setAttribute('data-scheme', e.data.theme);
-    }
-  });
-})();
-```
-
-Use `[data-scheme="dark"]` / `[data-scheme="light"]` CSS selectors for adaptive color — not `@media (prefers-color-scheme)`, which is blocked in sandboxed iframes.
+Artifacts run inside `<iframe sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox">` — single self-contained HTML file, opaque background, no horizontal scroll, layout ≤ 1600px, prose ≤ 72ch, body ≥ 16px, `prefers-reduced-motion` guard, `target="_blank" rel="noopener noreferrer"` on external links, no storage/cookies, and an adaptive `[data-scheme]` palette driven by the `portal:theme` postMessage handshake. Full contract is in `design-contract.md`.
 
 ## Design rules
 
